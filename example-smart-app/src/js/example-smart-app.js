@@ -39,7 +39,7 @@
               fname = patient.name[0].given.join(' ');
             }
             
-            if(typeof patient.name[0].given == 'string'){
+            if(typeof patient.name[0].family == 'string'){
               lname = patient.name[0].family;
             }else{
               lname = patient.name[0].family.join(' ');
