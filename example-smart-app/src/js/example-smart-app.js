@@ -73,62 +73,59 @@
 
           ret.resolve(p);
         });
-      } else {
-        onError();
-      }
 
-      //Bind apt button 
-      $('#book-appt').click(function () {
-        var appointmentParams = {
-          "resourceType": "Appointment",
-          "status": "proposed",
-          "serviceType": [
-            {
-              "coding": [
+        //Bind apt button 
+        $('#book-appt').click(function () {
+          var appointmentParams = {
+            "type": "Appointment",
+            "data": {
+              "resourceType": "Appointment",
+              "status": "proposed",
+              "serviceType": [
                 {
-                  "code": "408443003",
-                  "system": "http://snomed.info/sct"
+                  "coding": [
+                    {
+                      "code": "408443003",
+                      "system": "http://snomed.info/sct"
+                    }
+                  ]
+                }
+              ],
+              "reasonCode": [
+                {
+                  "text": "Test Video Visit"
+                }
+              ],
+              "comment": "Appointment request comment",
+              "participant": [
+                {
+                  "actor": {
+                    "reference": "Patient/" + patient.id
+                  },
+                  "status": "needs-action"
+                }
+              ],
+              "requestedPeriod": [
+                {
+                  "start": "2020-02-07T13:28:17-05:00",
+                  "end": "2021-02-07T13:28:17-05:00"
                 }
               ]
             }
-          ],
-          "reasonCode": [
-            {
-              "text": "Test Video Visit"
-            }
-          ],
-          "comment": "Appointment request comment",
-          "participant": [
-            {
-              "actor": {
-                "reference": "Patient/12724066"
-              },
-              "status": "needs-action"
-            },
-            {
-              "actor": {
-                "reference": "Location/21304876",
-                "display": "MX Clinic 1"
-              },
-              "status": "needs-action"
-            }
-          ],
-          "requestedPeriod": [
-            {
-              "start": "2020-02-07T13:28:17-05:00",
-              "end": "2021-02-07T13:28:17-05:00"
-            }
-          ]
-        }
-
-        smart.api.create(appointmentParams)
-          .done(function (response) {
-            console.log(response)
-          })
-          .fail(function (err) {
-            console.log(err);
-          })
-      })
+            
+          }
+          smart.api.create(appointmentParams)
+            .done(function (response) {
+              console.log(response)
+              alert('Created new apt: ' + response.data.id)
+            })
+            .fail(function (err) {
+              console.log(err);
+            })
+        })
+      } else {
+        onError();
+      }
     }
 
     FHIR.oauth2.ready(onReady, onError);
