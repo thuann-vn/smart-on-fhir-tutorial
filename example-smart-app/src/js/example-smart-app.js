@@ -7,7 +7,20 @@
       ret.reject();
     }
 
+    function fetchAppointments(smart){
+      smart.api.search({type: "Appointment"})
+      .then(function(response){ 
+        var $appointmentTable = $('#appointment-table');
+        $appointmentTable.find('tbody').html(''); 
+        response.data.entry.forEach(function(item){
+          $appointmentTable.find('tbody').append('<tr><td>'+ item.resource.id +'</td><td>'+ JSON.stringify(item.resource) +'</td></tr>')
+        })
+      })
+      .fail(function(err) { console.log(err); alert('Loading appointments failed!')})
+    }
+
     function onReady(smart) {
+      window.smart = smart;
       console.log(smart)
 
       if (smart.hasOwnProperty('patient')) {
@@ -74,6 +87,9 @@
           ret.resolve(p);
         });
 
+        //Load appointment list
+        fetchAppointments(smart)
+
         //Bind apt button 
         $('#book-appt').click(function () {
           var appointmentParams = {
@@ -118,11 +134,14 @@
             .done(function (response) {
               console.log(response)
               alert('Created new apt: ' + response.data.id)
+              fetchAppointments(smart);
             })
             .fail(function (err) {
               console.log(err);
             })
         })
+
+        //Get appointments
       } else {
         onError();
       }
@@ -130,7 +149,6 @@
 
     FHIR.oauth2.ready(onReady, onError);
     return ret.promise();
-
   };
 
   function defaultPatient() {
