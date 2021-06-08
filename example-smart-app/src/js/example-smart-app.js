@@ -7,16 +7,16 @@
       ret.reject();
     }
 
-    function fetchAppointments(smart){
-      smart.api.search({type: "Appointment"})
-      .then(function(response){ 
-        var $appointmentTable = $('#appointment-table');
-        $appointmentTable.find('tbody').html(''); 
-        response.data.entry.forEach(function(item){
-          $appointmentTable.find('tbody').append('<tr><td>'+ item.resource.id +'</td><td>'+ JSON.stringify(item.resource) +'</td></tr>')
+    function fetchAppointments(smart) {
+      smart.api.search({ type: "Appointment" })
+        .then(function (response) {
+          var $appointmentTable = $('#appointment-table');
+          $appointmentTable.find('tbody').html('');
+          response.data.entry.forEach(function (item) {
+            $appointmentTable.find('tbody').append('<tr><td>' + item.resource.id + '</td><td>' + JSON.stringify(item.resource) + '</td><td><button class="generate-meeting" data-id="' + item.resource.id + '">generate VSee meeting</button></td></tr>')
+          })
         })
-      })
-      .fail(function(err) { console.log(err); alert('Loading appointments failed!')})
+        .fail(function (err) { console.log(err); alert('Loading appointments failed!') })
     }
 
     function onReady(smart) {
@@ -128,7 +128,7 @@
                 }
               ]
             }
-            
+
           }
           smart.api.create(appointmentParams)
             .done(function (response) {
@@ -139,6 +139,67 @@
             .fail(function (err) {
               console.log(err);
             })
+        })
+
+        //Bind generate meeting button
+        $('body').on('click', '.generate-meeting', function (e) {
+          e.preventDefault();
+          var updateParams = {
+            "id": $(this).data('id'),
+            "data": {
+              "resourceType": "Appointment",
+              "id": $(this).data('id'),
+              "contained": [
+                {
+                  "resourceType": "HealthcareService",
+                  "id": "28",
+                  "type": [
+                    {
+                      "text": "Patient Virtual Meeting Room"
+                    }
+                  ],
+                  "telecom": [
+                    {
+                      "system": "url",
+                      "value": "https://www.vsee.com/",
+                      "period": {
+                        "start": "2020-07-13T08:00:00.000Z",
+                        "end": "2020-07-13T08:10:00.000Z"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "resourceType": "HealthcareService",
+                  "id": "31",
+                  "type": [
+                    {
+                      "text": "Provider Virtual Meeting Room"
+                    }
+                  ],
+                  "telecom": [
+                    {
+                      "system": "url",
+                      "value": "https://www.vsee.com/",
+                      "period": {
+                        "start": "2020-07-13T08:00:00.000Z",
+                        "end": "2020-07-13T08:10:00.000Z"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "type": "Appointment"
+          }
+          smart.api.update(updateParams)
+          .then(function (response) { 
+            alert('Update success')
+            fetchAppointments(smart)
+           })
+          .fail(function(err){
+            alert('Update failed')
+          })
         })
 
         //Get appointments
