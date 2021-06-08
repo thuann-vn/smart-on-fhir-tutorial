@@ -1,5 +1,5 @@
-(function(window){
-  window.extractData = function() {
+(function (window) {
+  window.extractData = function () {
     var ret = $.Deferred();
 
     function onError() {
@@ -7,25 +7,26 @@
       ret.reject();
     }
 
-    function onReady(smart)  {
+    function onReady(smart) {
       console.log(smart)
+
       if (smart.hasOwnProperty('patient')) {
         var patient = smart.patient;
         var pt = patient.read();
         var obv = smart.patient.api.fetchAll({
-                    type: 'Observation',
-                    query: {
-                      code: {
-                        $or: ['http://loinc.org|8302-2', 'http://loinc.org|8462-4',
-                              'http://loinc.org|8480-6', 'http://loinc.org|2085-9',
-                              'http://loinc.org|2089-1', 'http://loinc.org|55284-4']
-                      }
-                    }
-                  });
+          type: 'Observation',
+          query: {
+            code: {
+              $or: ['http://loinc.org|8302-2', 'http://loinc.org|8462-4',
+                'http://loinc.org|8480-6', 'http://loinc.org|2085-9',
+                'http://loinc.org|2089-1', 'http://loinc.org|55284-4']
+            }
+          }
+        });
 
         $.when(pt, obv).fail(onError);
 
-        $.when(pt, obv).done(function(patient, obv) {
+        $.when(pt, obv).done(function (patient, obv) {
           var byCodes = smart.byCodes(obv, 'code');
           var gender = patient.gender;
 
@@ -33,22 +34,22 @@
           var lname = '';
 
           if (typeof patient.name[0] !== 'undefined') {
-            if(typeof patient.name[0].given == 'string'){
+            if (typeof patient.name[0].given == 'string') {
               fname = patient.name[0].given;
-            }else{
+            } else {
               fname = patient.name[0].given.join(' ');
             }
-            
-            if(typeof patient.name[0].family == 'string'){
+
+            if (typeof patient.name[0].family == 'string') {
               lname = patient.name[0].family;
-            }else{
+            } else {
               lname = patient.name[0].family.join(' ');
             }
           }
 
           var height = byCodes('8302-2');
-          var systolicbp = getBloodPressureValue(byCodes('55284-4'),'8480-6');
-          var diastolicbp = getBloodPressureValue(byCodes('55284-4'),'8462-4');
+          var systolicbp = getBloodPressureValue(byCodes('55284-4'), '8480-6');
+          var diastolicbp = getBloodPressureValue(byCodes('55284-4'), '8462-4');
           var hdl = byCodes('2085-9');
           var ldl = byCodes('2089-1');
 
@@ -59,7 +60,7 @@
           p.lname = lname;
           p.height = getQuantityValueAndUnit(height[0]);
 
-          if (typeof systolicbp != 'undefined')  {
+          if (typeof systolicbp != 'undefined') {
             p.systolicbp = systolicbp;
           }
 
@@ -75,6 +76,59 @@
       } else {
         onError();
       }
+
+      //Bind apt button 
+      $('#book-appt').click(function () {
+        var appointmentParams = {
+          "resourceType": "Appointment",
+          "status": "proposed",
+          "serviceType": [
+            {
+              "coding": [
+                {
+                  "code": "408443003",
+                  "system": "http://snomed.info/sct"
+                }
+              ]
+            }
+          ],
+          "reasonCode": [
+            {
+              "text": "Test Video Visit"
+            }
+          ],
+          "comment": "Appointment request comment",
+          "participant": [
+            {
+              "actor": {
+                "reference": "Patient/12724066"
+              },
+              "status": "needs-action"
+            },
+            {
+              "actor": {
+                "reference": "Location/21304876",
+                "display": "MX Clinic 1"
+              },
+              "status": "needs-action"
+            }
+          ],
+          "requestedPeriod": [
+            {
+              "start": "2020-02-07T13:28:17-05:00",
+              "end": "2021-02-07T13:28:17-05:00"
+            }
+          ]
+        }
+
+        smart.api.create(appointmentParams)
+          .done(function (response) {
+            console.log(response)
+          })
+          .fail(function (err) {
+            console.log(err);
+          })
+      })
     }
 
     FHIR.oauth2.ready(onReady, onError);
@@ -82,25 +136,25 @@
 
   };
 
-  function defaultPatient(){
+  function defaultPatient() {
     return {
-      fname: {value: ''},
-      lname: {value: ''},
-      gender: {value: ''},
-      birthdate: {value: ''},
-      height: {value: ''},
-      systolicbp: {value: ''},
-      diastolicbp: {value: ''},
-      ldl: {value: ''},
-      hdl: {value: ''},
+      fname: { value: '' },
+      lname: { value: '' },
+      gender: { value: '' },
+      birthdate: { value: '' },
+      height: { value: '' },
+      systolicbp: { value: '' },
+      diastolicbp: { value: '' },
+      ldl: { value: '' },
+      hdl: { value: '' },
     };
   }
 
   function getBloodPressureValue(BPObservations, typeOfPressure) {
     var formattedBPObservations = [];
-    BPObservations.forEach(function(observation){
-      var BP = observation.component.find(function(component){
-        return component.code.coding.find(function(coding) {
+    BPObservations.forEach(function (observation) {
+      var BP = observation.component.find(function (component) {
+        return component.code.coding.find(function (coding) {
           return coding.code == typeOfPressure;
         });
       });
@@ -115,16 +169,16 @@
 
   function getQuantityValueAndUnit(ob) {
     if (typeof ob != 'undefined' &&
-        typeof ob.valueQuantity != 'undefined' &&
-        typeof ob.valueQuantity.value != 'undefined' &&
-        typeof ob.valueQuantity.unit != 'undefined') {
-          return ob.valueQuantity.value + ' ' + ob.valueQuantity.unit;
+      typeof ob.valueQuantity != 'undefined' &&
+      typeof ob.valueQuantity.value != 'undefined' &&
+      typeof ob.valueQuantity.unit != 'undefined') {
+      return ob.valueQuantity.value + ' ' + ob.valueQuantity.unit;
     } else {
       return undefined;
     }
   }
 
-  window.drawVisualization = function(p) {
+  window.drawVisualization = function (p) {
     $('#holder').show();
     $('#loading').hide();
     $('#fname').html(p.fname);
