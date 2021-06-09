@@ -13,7 +13,7 @@
           var $appointmentTable = $('#appointment-table');
           $appointmentTable.find('tbody').html('');
           response.data.entry.forEach(function (item) {
-            $appointmentTable.find('tbody').append('<tr><td>' + item.resource.id + '</td><td>' + JSON.stringify(item.resource) + '</td><td><button class="generate-meeting" data-id="' + item.resource.id + '">generate VSee meeting</button></td></tr>')
+            $appointmentTable.find('tbody').append('<tr><td>' + item.resource.id + '</td><td>' + JSON.stringify(item.resource) + '</td><td><button class="view-detail" data-id="' + item.resource.id + '">View Detail</button></td></tr>')
           })
         })
         .fail(function (err) { console.log(err); alert('Loading appointments failed!') })
@@ -97,6 +97,46 @@
             "data": {
               "resourceType": "Appointment",
               "status": "proposed",
+              "contained": [
+                {
+                  "resourceType": "HealthcareService",
+                  "id": "28",
+                  "type": [
+                    {
+                      "text": "Patient Virtual Meeting Room"
+                    }
+                  ],
+                  "telecom": [
+                    {
+                      "system": "url",
+                      "value": "https://thua-nguyen.vsee.me/",
+                      "period": {
+                        "start": "2020-07-13T08:00:00.000Z",
+                        "end": "2020-07-13T08:10:00.000Z"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "resourceType": "HealthcareService",
+                  "id": "31",
+                  "type": [
+                    {
+                      "text": "Provider Virtual Meeting Room"
+                    }
+                  ],
+                  "telecom": [
+                    {
+                      "system": "url",
+                      "value": "https://thua-nguyen.vsee.me/",
+                      "period": {
+                        "start": "2020-07-13T08:00:00.000Z",
+                        "end": "2020-07-13T08:10:00.000Z"
+                      }
+                    }
+                  ]
+                }
+              ],
               "serviceType": [
                 {
                   "coding": [
@@ -140,6 +180,25 @@
               console.log(err);
             })
         })
+
+        //Bind generate meeting button
+        $('body').on('click', '.view-detail', function (e) {
+          e.preventDefault();
+          var getParams = {
+            "id": $(this).data('id'),
+            "type": "Appointment"
+          }
+          smart.api.read(getParams)
+          .then(function (response) { 
+            alert('Get apt details success')
+            $('#appointment-detail').html(JSON.stringify(response.data, null, "\t"))
+           })
+          .fail(function(err){
+            console.error(err);
+            alert('Get apt details failed')
+          })
+        })
+
 
         //Bind generate meeting button
         $('body').on('click', '.generate-meeting', function (e) {
