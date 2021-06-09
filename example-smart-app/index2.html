@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Static Template</title>
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://combinatronics.com/smart-on-fhir/client-js/master/dist/build/fhir-client.js"></script>
+        <script src="app.js"></script>
+    </head>
+    <body>
+        <div class="cell top-left">
+            <h4>Current Patient</h4>
+            <pre id="patient"></pre>
+        </div>
+        <div class="cell top-center">
+            <h4>Current User</h4>
+            <pre id="user"></pre>
+        </div>
+        <div class="cell top-right">
+            <h4>Current Encounter</h4>
+            <pre id="encounter"></pre>
+        </div>
+        <div class="cell bottom">
+            <h4>Main Output <button id="book-appt">Create Appointment</button></h4>
+            <table id="appointment-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Data</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+        </div>
+        <script type="text/javascript">
+            FHIR.oauth2.ready().then(function(client) {
+                var app = new App(client);
+                app.renderContext();
+                app.request("metadata");
+            }).catch();
+        </script>
+    </body>
+</html>

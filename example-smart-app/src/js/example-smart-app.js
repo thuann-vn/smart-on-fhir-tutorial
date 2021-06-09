@@ -13,7 +13,7 @@
           var $appointmentTable = $('#appointment-table');
           $appointmentTable.find('tbody').html('');
           response.data.entry.forEach(function (item) {
-            $appointmentTable.find('tbody').append('<tr><td>' + item.resource.id + '</td><td>' + JSON.stringify(item.resource) + '</td><td><button class="view-detail" data-id="' + item.resource.id + '">View Detail</button></td></tr>')
+            $appointmentTable.find('tbody').append('<tr><td>' + item.resource.id + '</td><td>' + JSON.stringify(item.resource) + '</td><td><button class="view-detail" data-id="' + item.resource.id + '">View Detail</button></td><td><button class="generate-meeting" data-id="' + item.resource.id + '">Generate meeting</button></td></tr>')
           })
         })
         .fail(function (err) { console.log(err); alert('Loading appointments failed!') })
@@ -141,10 +141,13 @@
                 {
                   "coding": [
                     {
-                      "code": "408443003",
-                      "system": "http://snomed.info/sct"
+                      "system": "https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/14249",
+                      "code": "2572307911",
+                      "display": "Video Visit",
+                      "userSelected": true
                     }
-                  ]
+                  ],
+                  "text": "Video Visit"
                 }
               ],
               "reasonCode": [
@@ -204,54 +207,17 @@
         $('body').on('click', '.generate-meeting', function (e) {
           e.preventDefault();
           var updateParams = {
+            "type": "Appointment",
             "id": $(this).data('id'),
-            "data": {
-              "resourceType": "Appointment",
-              "id": $(this).data('id'),
-              "contained": [
-                {
-                  "resourceType": "HealthcareService",
-                  "id": "28",
-                  "type": [
-                    {
-                      "text": "Patient Virtual Meeting Room"
-                    }
-                  ],
-                  "telecom": [
-                    {
-                      "system": "url",
-                      "value": "https://www.vsee.com/",
-                      "period": {
-                        "start": "2020-07-13T08:00:00.000Z",
-                        "end": "2020-07-13T08:10:00.000Z"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "resourceType": "HealthcareService",
-                  "id": "31",
-                  "type": [
-                    {
-                      "text": "Provider Virtual Meeting Room"
-                    }
-                  ],
-                  "telecom": [
-                    {
-                      "system": "url",
-                      "value": "https://www.vsee.com/",
-                      "period": {
-                        "start": "2020-07-13T08:00:00.000Z",
-                        "end": "2020-07-13T08:10:00.000Z"
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
-            "type": "Appointment"
+            "data": [
+              {
+                "op": "replace",
+                "path": "/status",
+                "value": "cancelled"
+              }
+            ]
           }
-          smart.api.update(updateParams)
+          smart.api.patch(updateParams)
           .then(function (response) { 
             alert('Update success')
             fetchAppointments(smart)
