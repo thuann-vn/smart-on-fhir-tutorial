@@ -51,18 +51,16 @@ App.prototype.fetchAppointments = function () {
         client.request({
             url: "Appointment/" + $(this).data('id'),
             method: "PATCH",
-            headers: {
-                'Accept': 'application/fhir+json',
-                'Content-Type': 'application/json-patch+json',
-                'If-Match': 'W/"1"'
-            },
-            body: [
-                {
-                    "op": "replace",
-                    "path": "/status",
-                    "value": "cancelled"
-                }
-            ]
+            // headers: {
+            //     'Accept': 'application/fhir+json',
+            //     'Content-Type': 'application/json-patch+json',
+            //     'If-Match': 'W/"1"'
+            // },
+            body: {
+                "op": "replace",
+                "path": "/status",
+                "value": "cancelled"
+            }
         })
             .then(function (response) {
                 alert('Update success')
