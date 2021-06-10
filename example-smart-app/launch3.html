@@ -21,12 +21,15 @@
 
               // The scopes that you request from the EHR
               scope: [
-                "patient/Patient.read",           // Get the launch context in EHR launch mode
-                "patient/Observation.read",  // Get the current user
-                "launch",   // Read patient data
+                "patient/Appointment.read",
+                "patient/Patient.read",
+                "patient/Observation.read",
+                "patient/Appointment.write",
+                "launch",
                 "online_access",
                 "openid",
-                "profile"
+                "profile",
+                "fhirUser"
               ].join(" "),
               redirectUri: "index2.html"
             });
