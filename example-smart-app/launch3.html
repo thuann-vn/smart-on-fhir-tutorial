@@ -17,28 +17,17 @@
           }
           else {
             FHIR.oauth2.authorize({
-
-              // The client_id that you should have obtained after registering a client at
-              // the EHR.
               clientId: "e97ef520-e34b-4693-8604-98a26c92ab73",
 
               // The scopes that you request from the EHR
               scope: [
-                "launch",           // Get the launch context in EHR launch mode
-                "openid fhirUser",  // Get the current user
-                "patient/*.read",   // Read patient data
-                "offline_access",
+                "patient/Patient.read",           // Get the launch context in EHR launch mode
+                "patient/Observation.read",  // Get the current user
+                "launch",   // Read patient data
                 "online_access",
-                "profile",
-                "user/*.read",   // Read patient data
-                "user/*.write",   // Read patient data
+                "openid",
+                "profile"
               ].join(" "),
-
-              // Typically, if your redirectUri points to the root of the current directory
-              // (where the launchUri is), you can omit this option because the default
-              // value is ".". However, some servers (like this one) do not support directory
-              // indexes so "." and "./" will not automatically map to the "index.html" file
-              // in that directory.
               redirectUri: "index2.html"
             });
           }
